@@ -1,0 +1,34 @@
+name: Publish Python 🐍 distribution 📦 to PyPI
+
+on:
+  push:
+    tags:
+      - "v*" # Trigger the workflow on version tags
+
+jobs:
+  build-and-publish:
+    name: Build and publish Python 🐍 distribution 📦 to PyPI
+    runs-on: ubuntu-latest
+    environment: pypi-publish
+    permissions:
+      id-token: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v1
+        with:
+          cache: true
+
+      - name: Build package
+        run: uv build --out dist/
+
+      - name: Publish package to PyPI
+        run: uv publish --token ${{ secrets.PYPI_API_TOKEN }} dist/*
